@@ -67,8 +67,18 @@ numeric_t *InferPairModel(alignment_t *ali, options_t *options) {
     for (int i = 0; i < ali->nSites; i++) lambdaHi(i) = options->lambdaH;
     for (int i = 0; i < ali->nSites - 1; i++)
         for (int j = i + 1; j < ali->nSites; j++)
-            lambdaEij(i, j) = options->lambdaE;
-
+            if(options->lambdaReweigh != 0){
+                /* reweigh lambdaE parameters dependent on i and j distance */
+                lambdaEij(i, j) = exp(-1.0*(abs(i-j) / options->lambdaReweigh));
+                /* --------------------------------_DEBUG_--------------------------------*/
+                /* Alignment to stderr */
+                   fprintf(stderr,"Reweighing lambda E = %f\n",options->lambdaReweigh);
+                   fprintf(stderr, "E(%d, %d) = %f \n", i,j,exp(-1.0*(abs(i-j) / options->lambdaReweigh)));
+                // exit(0);
+                /* --------------------------------^DEBUG^--------------------------------*/
+            } else {
+                lambdaEij(i, j) = options->lambdaE;
+            }
     /* For gap-reduced problems, eliminate the gaps and reduce the alphabet */
     if (options->estimatorMAP == INFER_MAP_PLM_GAPREDUCE) {
         ali->nCodes = strlen(ali->alphabet) - 1;

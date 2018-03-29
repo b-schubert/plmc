@@ -60,6 +60,7 @@ typedef struct {
     numeric_t lambdaH;
     numeric_t lambdaE;
     numeric_t lambdaGroup;
+    numeric_t lambdaReweigh;
 
     /* Iterative APC removal */
     int zeroAPC;
