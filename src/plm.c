@@ -46,7 +46,9 @@ const char *usage =
 "      -lh --lambdah          <value>         Set L2 lambda for fields (h_i)\n"
 "      -le --lambdae          <value>         Set L2 lambda for couplings (e_ij)\n"
 "      -lg --lambdag          <value>         Set group L1 lambda for couplings (e_ij)\n"
-"      -lr --lambdareweighing <value>         Activates lambdaE reweighing and specifies the hyperparameter \n"
+"      -rf --reweightfunction <value>         If 1 = use theoretical reweight, 2 = emperical reweight, 3 = naive reweight, default = no reweight \n"
+"      -lr1 --lambdareweighing1 <value>       Delta if reweightfunction == 1 or 2 or 3 \n"
+"      -lr2 --lambdareweighing2 <value>       K if reweightfunction == 1 or 2\n"
 "\n"
 "    Options, general:\n"
 "      -a  --alphabet   alphabet        Alternative character set to use for analysis\n"
@@ -70,7 +72,8 @@ const char *codesAA = "-ACDEFGHIKLMNPQRSTVWY";
 const numeric_t REGULARIZATION_LAMBDA_H = 0.01;
 const numeric_t REGULARIZATION_LAMBDA_E = 100.0;
 const numeric_t REGULARIZATION_LAMBDA_GROUP = 0.0;
-const numeric_t REGULARIZATION_LAMBDA_REWEIGHING_E = 0.0;
+const numeric_t REGULARIZATION_LAMBDA_REWEIGHING1_E = 15.0;
+const numeric_t REGULARIZATION_LAMBDA_REWEIGHING2_E = 7.0;
 const numeric_t REWEIGHTING_THETA = 0.20;
 const numeric_t REWEIGHTING_SCALE = 1.0;
 const int ZERO_APC_PRIORS = 0;
@@ -86,7 +89,11 @@ int main(int argc, char **argv) {
     options->lambdaH = REGULARIZATION_LAMBDA_H;
     options->lambdaE = REGULARIZATION_LAMBDA_E;
     options->lambdaGroup = REGULARIZATION_LAMBDA_GROUP;
-    options->lambdaReweigh = REGULARIZATION_LAMBDA_REWEIGHING_E;
+    options->lambdaReweigh1 = REGULARIZATION_LAMBDA_REWEIGHING1_E;
+    options->lambdaReweigh2 = REGULARIZATION_LAMBDA_REWEIGHING2_E;
+    options->reweightFunction = 0;
+
+
     options->scale = REWEIGHTING_SCALE;
     options->zeroAPC = 0;
     options->maxIter = 0;
@@ -122,9 +129,19 @@ int main(int argc, char **argv) {
         } else if ((arg < argc-1) && (strcmp(argv[arg], "--lambdag") == 0
                     || strcmp(argv[arg], "-lg") == 0)) {
             options->lambdaGroup = atof(argv[++arg]);
-        } else if ((arg < argc-1) && (strcmp(argv[arg], "--lambdareweighing") == 0
-                    || strcmp(argv[arg], "-lr") == 0)) {
-            options->lambdaReweigh = atof(argv[++arg]);
+
+        } else if ((arg < argc-1) && (strcmp(argv[arg], "--reweightingfunction") == 0
+                    || strcmp(argv[arg], "-rf") == 0)) {
+            options->reweightFunction = atoi(argv[++arg]);
+
+        } else if ((arg < argc-1) && (strcmp(argv[arg], "--lambdareweighing1") == 0
+                    || strcmp(argv[arg], "-lr1") == 0)) {
+            options->lambdaReweigh1 = atof(argv[++arg]);
+
+        } else if ((arg < argc-1) && (strcmp(argv[arg], "--lambdareweighing2") == 0
+                    || strcmp(argv[arg], "-lr2") == 0)) {
+            options->lambdaReweigh2 = atof(argv[++arg]);
+
         } else if ((arg < argc-1) && (strcmp(argv[arg], "--theta") == 0
                     || strcmp(argv[arg], "-t") == 0)) {
             options->theta = atof(argv[++arg]);

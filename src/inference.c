@@ -61,24 +61,41 @@ numeric_t *InferPairModel(alignment_t *ali, options_t *options) {
        multiple sequence alignment */
 
     /* Initialize the regularization parameters */
+    numeric_t dist;
     numeric_t *lambdas =
     (numeric_t *) malloc((ali->nSites + ali->nSites * (ali->nSites - 1) / 2)
             * sizeof(numeric_t));
     for (int i = 0; i < ali->nSites; i++) lambdaHi(i) = options->lambdaH;
     for (int i = 0; i < ali->nSites - 1; i++)
         for (int j = i + 1; j < ali->nSites; j++)
-            if(options->lambdaReweigh != 0){
-                /* reweigh lambdaE parameters dependent on i and j distance */
-                lambdaEij(i, j) = options->lambdaE * exp(-1.0*(abs(i-j) / options->lambdaReweigh));
-                /* --------------------------------_DEBUG_--------------------------------*/
-                /* Alignment to stderr */
-                //   fprintf(stderr,"Reweighing lambda E = %f\n",options->lambdaReweigh);
-                //   fprintf(stderr, "E(%d, %d) = %f \n", i,j,exp(-1.0*(abs(i-j) / options->lambdaReweigh)));
-                // exit(0);
-                /* --------------------------------^DEBUG^--------------------------------*/
-            } else {
-                lambdaEij(i, j) = options->lambdaE;
+            switch(options->reweightFunction) {
+
+                case 1  :
+                    lambdaEij(i, j) = options->lambdaE * (((options->lambdaReweigh2 -1) * exp(-1.0*(abs(i-j) / options->lambdaReweigh1)) + 1.0)/ options->lambdaReweigh2);
+                    break; /* optional */
+                    
+                case 2  :
+                    dist =  abs(i-j);
+                    lambdaEij(i, j) = options->lambdaE * (((options->lambdaReweigh2 -1) * exp(-1.0*(dist*dist / options->lambdaReweigh1)) + 1.0)/ options->lambdaReweigh2);
+                    break; /* optional */
+                
+                case 3  :
+                    lambdaEij(i, j) = options->lambdaE * exp(-1.0*(abs(i-j) / options->lambdaReweigh1));
+                    break;
+
+                default :
+                    lambdaEij(i, j) = options->lambdaE;
             }
+
+            // lambdaEij(i, j) = options->lambdaE * exp(-1.0*(abs(i-j) / options->lambdaReweigh));
+            
+            /* --------------------------------_DEBUG_--------------------------------*/
+            /* Alignment to stderr */
+            //   fprintf(stderr,"Reweighing lambda E = %f\n",options->lambdaReweigh);
+            //   fprintf(stderr, "E(%d, %d) = %f \n", i,j,exp(-1.0*(abs(i-j) / options->lambdaReweigh)));
+            // exit(0);
+            /* --------------------------------^DEBUG^--------------------------------*/
+
     /* For gap-reduced problems, eliminate the gaps and reduce the alphabet */
     if (options->estimatorMAP == INFER_MAP_PLM_GAPREDUCE) {
         ali->nCodes = strlen(ali->alphabet) - 1;

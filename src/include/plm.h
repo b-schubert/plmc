@@ -60,7 +60,12 @@ typedef struct {
     numeric_t lambdaH;
     numeric_t lambdaE;
     numeric_t lambdaGroup;
-    numeric_t lambdaReweigh;
+
+    //reweight based on i-j
+    numeric_t lambdaReweigh1; // Delta
+    numeric_t lambdaReweigh2; //k
+    int reweightFunction; //1 = theoretical model or 2 = emperical model or default = straight weight
+    
 
     /* Iterative APC removal */
     int zeroAPC;
