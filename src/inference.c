@@ -69,11 +69,11 @@ numeric_t *InferPairModel(alignment_t *ali, options_t *options) {
         for (int j = i + 1; j < ali->nSites; j++)
             if(options->lambdaReweigh != 0){
                 /* reweigh lambdaE parameters dependent on i and j distance */
-                lambdaEij(i, j) = exp(-1.0*(abs(i-j) / options->lambdaReweigh));
+                lambdaEij(i, j) = options->lambdaE * exp(-1.0*(abs(i-j) / options->lambdaReweigh));
                 /* --------------------------------_DEBUG_--------------------------------*/
                 /* Alignment to stderr */
-                   fprintf(stderr,"Reweighing lambda E = %f\n",options->lambdaReweigh);
-                   fprintf(stderr, "E(%d, %d) = %f \n", i,j,exp(-1.0*(abs(i-j) / options->lambdaReweigh)));
+                //   fprintf(stderr,"Reweighing lambda E = %f\n",options->lambdaReweigh);
+                //   fprintf(stderr, "E(%d, %d) = %f \n", i,j,exp(-1.0*(abs(i-j) / options->lambdaReweigh)));
                 // exit(0);
                 /* --------------------------------^DEBUG^--------------------------------*/
             } else {
